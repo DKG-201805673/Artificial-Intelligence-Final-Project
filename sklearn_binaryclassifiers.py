@@ -63,13 +63,11 @@ df_model['Precision'] = precision.values()
 df_model['Recall'] = recall.values()
 df_model['Confusion Matrix'] = confusion.values()
 
-df_model
-
 optimized_models= {}
 accuracy_opt, precision_opt, recall_opt, confusion_opt = {}, {}, {}, {}
 
 
-#lines 66-89 : https://machinelearningmastery.com/scikit-optimize-for-hyperparameter-tuning-in-machine-learning/
+#lines 71-87 : https://machinelearningmastery.com/scikit-optimize-for-hyperparameter-tuning-in-machine-learning/
 from sklearn.model_selection import GridSearchCV
 # define evaluation
 from sklearn.model_selection import RepeatedStratifiedKFold
@@ -195,5 +193,5 @@ df_model_opt['Precision'] = precision_opt.values()
 df_model_opt['Recall'] = recall_opt.values()
 df_model_opt['Confusion Matrix'] = confusion_opt.values()
 
-df_model
-df_model_opt
+df_model.to_csv("C:/Users/Henning Dieckow/Documents/LSE/AI-Project/naiveresults.csv", index=False)
+df_model_opt.to_csv("C:/Users/Henning Dieckow/Documents/LSE/AI-Project/optimized_results.csv", index=False)
