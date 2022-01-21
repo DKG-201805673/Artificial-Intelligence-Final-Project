@@ -1,6 +1,7 @@
 import pandas as pd
 
-df = pd.read_csv("C:/Users/Henning Dieckow/Documents/LSE/AI-Project/heart_mod_ohe.csv")
+#replace path to prepared dataset
+df = pd.read_csv([your path here])
 
 X = df.drop('HeartDisease', axis=1)
 y = df['HeartDisease']
@@ -12,7 +13,7 @@ X = standardizer.fit_transform(X)
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y , test_size=0.2, random_state=42)
 
-# lines 15-64: https://www.learndatasci.com/glossary/binary-classification/
+# lines 17-64 due to: https://www.learndatasci.com/glossary/binary-classification/
 models = {}
 
 # Logistic Regression
@@ -67,7 +68,7 @@ optimized_models= {}
 accuracy_opt, precision_opt, recall_opt, confusion_opt = {}, {}, {}, {}
 
 
-#lines 71-87 : https://machinelearningmastery.com/scikit-optimize-for-hyperparameter-tuning-in-machine-learning/
+#lines 71-88 due to: https://machinelearningmastery.com/scikit-optimize-for-hyperparameter-tuning-in-machine-learning/
 from sklearn.model_selection import GridSearchCV
 # define evaluation
 from sklearn.model_selection import RepeatedStratifiedKFold
@@ -77,15 +78,16 @@ cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
 # define search space
 params = dict()
 params['C'] = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100]
-params['gamma'] = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100]
-params['degree'] = (1,5)
+params['gamma'] = ['scale', 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100]
+params['degree'] = [1, 3, 5]
 params['kernel'] = ['linear', 'poly', 'rbf', 'sigmoid']
 
 # define the search
 search = GridSearchCV(SVC(), params, scoring='accuracy', n_jobs=-1, cv=cv)
 # perform the search
 search.fit(X_train, y_train)
-# store the best result
+# print and store the best result
+print(f'Optimized SVM score: {search.best_score_} with parameters: {search.best_params_}.')
 optimized_models['Optimized Support Vector Machines'] = (search.best_score_, search.best_params_)
 # make predictions
 predictions = search.predict(X_test)
@@ -107,7 +109,8 @@ params['C'] = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100]
 search = GridSearchCV(LogisticRegression(), params, scoring='accuracy', n_jobs=-1, cv=cv)
 # perform the search
 search.fit(X_train, y_train)
-# store the best result
+# print and store the best result
+print(f'Optimized Logistic Regression score: {search.best_score_} with parameters: {search.best_params_}.')
 optimized_models['Optimized Logistic Regression'] = (search.best_score_, search.best_params_)
 # make predictions
 predictions = search.predict(X_test)
@@ -125,12 +128,13 @@ confusion_opt['Optimized Logistic Regression'] = confusion_matrix(y_test, predic
 params = dict()
 params['criterion'] = ['gini', 'entropy']
 params['splitter'] = ['random', 'best']
-params['max_depth'] = [2,4,6,8,10,12,14,16]
+params['max_depth'] = [None,2,4,6,8,10,12,14,16]
 # define the search
 search = GridSearchCV(DecisionTreeClassifier(), params, scoring='accuracy', n_jobs=-1, cv=cv)
 # perform the search
 search.fit(X_train, y_train)
-# store the best result
+# print and store the best result
+print(f'Optimized Decision Tree score: {search.best_score_} with parameters: {search.best_params_}.')
 optimized_models['Optimized Decision Trees'] = (search.best_score_, search.best_params_)
 # make predictions
 predictions = search.predict(X_test)
@@ -143,15 +147,17 @@ confusion_opt['Optimized Decision Trees'] = confusion_matrix(y_test, predictions
 #tuning Random Forest
 #define search space
 params = dict()
-params['min_samples_split'] = [3, 5, 10]
+params['min_samples_split'] = [2, 3, 5, 10]
 params['n_estimators'] = [100, 300]
-params['max_depth'] = [3, 5, 15, 25]
-params['max_features'] = [3, 5, 10, 20]
+params['max_depth'] = [None, 3, 5, 15, 25]
+params['max_features'] = ['auto', 3, 5, 10, 20]
+params['criterion'] = ['gini', 'entropy']
 # define the search
 search = GridSearchCV(RandomForestClassifier(), params, scoring='accuracy', n_jobs=-1, cv=cv)
 # perform the search
 search.fit(X_train, y_train)
-# store the best result
+# print and store the best result
+print(f'Optimized Random Forest score: {search.best_score_} with parameters: {search.best_params_}.')
 optimized_models['Optimized Random Forest'] = (search.best_score_, search.best_params_)
 # make predictions
 predictions = search.predict(X_test)
@@ -176,7 +182,8 @@ params['metric'] = ['minkowski', 'chebyshev', 'manhattan']
 search = GridSearchCV(KNeighborsClassifier(), params, scoring='accuracy', n_jobs=-1, cv=cv)
 # perform the search
 search.fit(X_train, y_train)
-# store the best result
+# print and store the best result
+print(f'Optimized K-Nearest Neighbors score: {search.best_score_} with parameters: {search.best_params_}.')
 optimized_models['Optimized K-Nearest Neighbors'] = (search.best_score_, search.best_params_)
 # make predictions
 predictions = search.predict(X_test)
@@ -187,11 +194,13 @@ recall_opt['Optimized K-Nearest Neighbors'] = recall_score(predictions, y_test)
 confusion_opt['Optimized K-Nearest Neighbors'] = confusion_matrix(y_test, predictions)
 
 
-df_model_opt = pd.DataFrame(index=optimized_models.keys(), columns=['Accuracy', 'Precision', 'Recall', 'Confusion Matrix'])
+df_model_opt = pd.DataFrame(index=optimized_models.keys(), columns=['Parameters', 'Accuracy', 'Precision', 'Recall', 'Confusion Matrix'])
+df_model_opt['Parameters'] = [value[1] for value in optimized_models.values()]
 df_model_opt['Accuracy'] = accuracy_opt.values()
 df_model_opt['Precision'] = precision_opt.values()
 df_model_opt['Recall'] = recall_opt.values()
 df_model_opt['Confusion Matrix'] = confusion_opt.values()
 
-df_model.to_csv("C:/Users/Henning Dieckow/Documents/LSE/AI-Project/naiveresults.csv", index=False)
-df_model_opt.to_csv("C:/Users/Henning Dieckow/Documents/LSE/AI-Project/optimized_results.csv", index=False)
+# store results to csv (insert your filepath here)
+df_model.to_csv([your path here], index=True)
+df_model_opt.to_csv([your path here], index=True)
