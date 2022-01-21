@@ -1,7 +1,7 @@
 import pandas as pd
 
 #replace path to prepared dataset
-df = pd.read_csv([your path here])
+df = pd.read_csv([your filepath here])
 
 X = df.drop('HeartDisease', axis=1)
 y = df['HeartDisease']
@@ -205,5 +205,5 @@ df_model_opt['Recall'] = recall_opt.values()
 df_model_opt['Confusion Matrix'] = confusion_opt.values()
 
 #store results to csv (insert your filepath here)
-df_model.to_csv([your path here], index=True)
-df_model_opt.to_csv([your path here], index=True)
+df_model.to_csv([your filepath here], index=True)
+df_model_opt.to_csv([your filepath here], index=True)
